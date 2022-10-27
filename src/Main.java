@@ -6,7 +6,7 @@ public class Main{
 
         // y = mx + b
         // Init the equation
-        double[] y = new double[]{5.0, 12.9, 2.0};
+        double[] y = new double[] {5.0, 12.9, 2.0};
 
         /*for(int i = 0; i < 3; i++){
             System.out.println(y[i]);
