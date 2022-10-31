@@ -28,10 +28,11 @@ public class DoubleMatrixMath {
         // We now need to calculate all any type of nxn matrix
 
         double[][] inverseMatrix = getInverseMatrix(m);
-
+        System.out.println("The inverse Matrix:");
+        printMatrix(inverseMatrix);
         // Collapse the nxn matrix w/ the nx1 matrix
 
-        double [] xMatrix = collapseMatrix(m,y);
+        double [] xMatrix = collapseMatrix(inverseMatrix,y);
 
         System.out.println("X values:");
         for(int i = 0; i < xMatrix.length; i++){
@@ -44,10 +45,15 @@ public class DoubleMatrixMath {
     public static double[][] getInverseMatrix(double[][] A){
         //getting the determinate of the matrix
         double determinate  = getDeterminate(A, A.length);
-
+        System.out.println("The determinate: " + determinate );
         //Get the identity of the matrix
         double[][] adjugate = getAdjugateMatrix(A);
 
+        //printMatrix(adjugate);
+        //get the transpose of the adjugate
+        adjugate = transposeMatrix(adjugate);
+
+        //printMatrix(adjugate);
         // multiply the adjugate with the inverse of the determinate
         for(int i = 0; i < adjugate.length; i++){
             for(int j = 0; j < adjugate.length; j++){
@@ -70,7 +76,7 @@ public class DoubleMatrixMath {
             res = 0;
             for(int i = 0; i < size; i++){
                 double[][]m = getSubmatrix (A, size, i); // getting sub-matrix of A by excluding cols and rows
-                res += Math.pow(-1.0, 1.0+i+1.0) * A[0][i] * getDeterminate(m, size-1);
+                res += Math.pow(-1.0, 2.0+i) * A[0][i] * getDeterminate(m, size-1);
             }
         }
         return res;
@@ -139,7 +145,24 @@ public class DoubleMatrixMath {
             for(int j =0; j < A.length; j++){
                 // inverting -1 and 1 multiplied with the determinate of the sub-matrix
                 double[][] subMatrix = getSubmatrixRevamp(A,i,j);
-                res[i][j] = Math.pow(-1.0, i+j) * getDeterminate(subMatrix,subMatrix.length); //might need to debug
+                res[i][j] = Math.pow(-1.0, i+j) * getDeterminate(subMatrix,subMatrix.length);
+            }
+        }
+        return res;
+    }
+
+    // This reverses the cols of a matrix and places them as rows
+    // This flips everything around the diagonal
+    public static double[][] transposeMatrix(double[][] A){
+        double res[][] = new double[A.length][];
+
+        for(int k = 0; k < (A.length); k++){
+            res[k] = new double[A.length];
+        }
+
+        for(int i = 0; i < A.length; i++){
+            for(int j = 0; j < A.length; j++){
+                res[j][i] = A[i][j];
             }
         }
         return res;
@@ -158,6 +181,7 @@ public class DoubleMatrixMath {
         return res;
     }
 
+
     // A helper method so that we can see what is in our matrices
     public static void printMatrix(double[][] m){
 
@@ -169,5 +193,7 @@ public class DoubleMatrixMath {
             System.out.println(); // new line
         }
     }
+
+
 
 }
