@@ -33,9 +33,11 @@ public class DoubleMatrixMath {
 
         double [] xMatrix = collapseMatrix(m,y);
 
+        System.out.println("X values:");
         for(int i = 0; i < xMatrix.length; i++){
             System.out.println(xMatrix[i]);
         }
+
     }
 
     //The inverse of a matrix is the inverse of the determinate multiplied by the adjugate
