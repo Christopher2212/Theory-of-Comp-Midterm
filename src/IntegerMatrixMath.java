@@ -1,23 +1,16 @@
-//References:
-// https://semath.info/src/inverse-cofactor-ex4.html
-// https://www.youtube.com/watch?v=h4Za9W2H6fk&ab_channel=ThinkwellVids
-// https://math.libretexts.org/Bookshelves/Algebra/Map%3A_College_Algebra_(OpenStax)/07%3A_Systems_of_Equations_and_Inequalities/708%3A_Solving_Systems_with_Inverses
-
-
-public class DoubleMatrixMath {
-
+public class IntegerMatrixMath {
     public static void main(String[] args) {
         // y = mx + b
         // Init the equation
-        double[] y = new double[] {5.0, 12.9, 2.0};
+        double[] y = new double[] {5.0, 12.0, 2.0,2.0};
 
         //          0         1         2
         // m = {{a1.b1,c1},{a2,b2,c2},{a3,b3,c3}}
-        double[][] m = {{3.2,8.7,2.2},{2.4,3.1,1.1},{2.4,3.1,1.1}};
-        double[] b = {3.7,3.8,1};
+        double[][] m = {{3.0,8.0,5.0,2.0},{2.0,3.0,1.0,2.0},{2.0,3.0,1.0,4.0},{9.0,6.0,1,7.0}};
+        double[] b = {3.0,3.0,1,2.0};
 
         // Init c
-        double[] c = {8.2,9.7,1.1};
+        double[] c = {8.0,9.0,1.0,1.0};
 
         // First we need to change the equation from y = mx + b to y = mx
         // Subtract b from the equation
@@ -32,19 +25,27 @@ public class DoubleMatrixMath {
         printMatrix(inverseMatrix);
         // Collapse the nxn matrix w/ the nx1 matrix
 
-        double [] xMatrix = collapseMatrix(inverseMatrix,y);
+        double[] xMatrix = collapseMatrix(inverseMatrix,y);
 
         System.out.println("X values:");
         for(int i = 0; i < xMatrix.length; i++){
             System.out.println(xMatrix[i]);
         }
 
+        // With our x's we can go through their combinations of roof and floor
+        double[][] combinations = new double[(int)Math.pow(2,xMatrix.length)][];
+
+        //getCombinations(xMatrix, combinations,0, xMatrix.length);
+
+        printMatrix(combinations);
     }
 
     //The inverse of a matrix is the inverse of the determinate multiplied by the adjugate
     public static double[][] getInverseMatrix(double[][] A){
         //getting the determinate of the matrix
         double determinate  = getDeterminate(A, A.length);
+        System.out.println("The determinate: " + determinate );
+
 
         if(determinate == 0){
             try {
@@ -53,7 +54,6 @@ public class DoubleMatrixMath {
                 throw new RuntimeException(e);
             }
         }
-        System.out.println("The determinate: " + determinate );
         //Get the identity of the matrix
         double[][] adjugate = getAdjugateMatrix(A);
 
@@ -83,7 +83,7 @@ public class DoubleMatrixMath {
         }else{ // if not 1x1 or 2x2 you must recursively boil down to that
             res = 0;
             for(int i = 0; i < size; i++){
-                double[][]m = getSubmatrix(A, size, i); // getting sub-matrix of A by excluding cols and rows
+                double[][]m = getSubmatrix (A, size, i); // getting sub-matrix of A by excluding cols and rows
                 res += Math.pow(-1.0, 2.0+i) * A[0][i] * getDeterminate(m, size-1);
             }
         }
@@ -93,20 +93,18 @@ public class DoubleMatrixMath {
     //Getting sub-matrix given an 2D array and the inclusive rows and exclusive cols
     //Has a fatal flaw, basically it works if we are descaling the matrix size via the rows at 0
     //Good for the init determinate but is poor for the children's determinates
+    //Also a helper method for getDeterminate
     public static double[][] getSubmatrix(double[][] A, int rowInc, int colExc){
-        double[][] result = new double[rowInc-1][];
-
+        double[][] result = new double[A.length-1][];
         for(int k = 0; k < (rowInc -1); k++){
             result[k] = new double[rowInc-1];
         }
-
         for(int i = 1; i < rowInc; i++){
             int j2 = 0;
             for(int j = 0; j < rowInc; j++){
                 if(j == colExc){
                     continue;
                 }
-                System.out.println(j2 + "" + colExc);
                 result[i-1][j2] = A[i][j];
                 j2++;
             }
@@ -192,6 +190,26 @@ public class DoubleMatrixMath {
         return res;
     }
 
+    /*public static void getCombinations(double[] x, double[][] A, int i, int n){
+        // this code is disgusting and I hate it BUT it works so bite me
+        // there is a bug where 0 is overwritten
+        if(i == n){
+            if(A.length == 0){
+                A[0] = x;
+            }else{
+                A[A.length] = x;
+            }
+        }else{
+            int t = i+1;
+            // get the combinations where the ith item in x is floored
+            x[i] = Math.floor(x[i]);
+            getCombinations(x,A,t,n);
+
+            //get the combinations where the ith item in x is roofed
+            x[i] = Math.ceil(x[i]);
+            getCombinations(x,A,t,n);
+        }
+    }*/
 
     // A helper method so that we can see what is in our matrices
     public static void printMatrix(double[][] m){
@@ -204,7 +222,4 @@ public class DoubleMatrixMath {
             System.out.println(); // new line
         }
     }
-
-
-
 }
