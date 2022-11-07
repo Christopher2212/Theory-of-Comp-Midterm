@@ -45,6 +45,49 @@ public class Main {
         double[][] tempM = getTempMatrixA(m, y);
 
         // Goes through the sequence of the Matrix
+        seqMatix(tempM, y, m);
+
+        // Find value X in the matrix
+        double[] valueX = getValueX(tempM, y);
+
+
+        System.out.println();
+        double[] cTx = new double[c.length];
+        System.out.println("X values:");
+        for(int i = 0; i < valueX.length; i++){
+            System.out.println(valueX[i]);
+            cTx[i] = c[i] * valueX[i];
+        }
+
+        System.out.println();
+        System.out.println("cTx values:");
+        for(int i = 0; i < valueX.length; i++){
+            System.out.println(cTx[i]);
+        }
+    }
+
+    public static double[][] getTempMatrixA(double[][] m, double[] y){
+        double[][] tempM = new double[m[0].length][m.length];
+        for(int i = 0; i < m.length; i++){
+
+            for(int j = 0; j < m.length; j++){
+                if(i == 0){
+                    tempM[i][j] = m[i][j];
+                } else{
+                    tempM[i][j] = m[i][j];
+                    double temp = m[i][0];
+                    y[i] = (y[0] * m[i][0]) + y[i];
+                    for(int z = 0; z < m.length; z++){
+                        tempM[i][z] = (tempM[0][z] * temp) + m[i][z];
+                    }
+                    j = m.length;
+                }
+            }
+        }
+        return tempM;
+    }
+
+    private static void seqMatix(double[][] tempM, double[] y, double[][] m){
         for(int i = 0; i < m.length; i++){
             double downZ;
             double upZ;
@@ -95,7 +138,9 @@ public class Main {
                 }
             }
         }
+    }
 
+    public static double[] getValueX(double[][] tempM, double[] y){
         double[] valueX = new double[tempM.length];
         for(int i = tempM.length - 1; i >= 0; i--){
             double[] equa = new double[tempM.length + 1];
@@ -113,44 +158,7 @@ public class Main {
 
             valueX[i] = equa[tempM.length];
         }
-
-
-        System.out.println();
-        double[] cTx = new double[c.length];
-        System.out.println("X values:");
-        for(int i = 0; i < valueX.length; i++){
-            System.out.println(valueX[i]);
-            cTx[i] = c[i] * valueX[i];
-        }
-
-        System.out.println();
-        System.out.println("cTx values:");
-        for(int i = 0; i < valueX.length; i++){
-            System.out.println(cTx[i]);
-        }
-
-
-    }
-
-    public static double[][] getTempMatrixA(double[][] m, double[] y){
-        double[][] tempM = new double[m[0].length][m.length];
-        for(int i = 0; i < m.length; i++){
-
-            for(int j = 0; j < m.length; j++){
-                if(i == 0){
-                    tempM[i][j] = m[i][j];
-                } else{
-                    tempM[i][j] = m[i][j];
-                    double temp = m[i][0];
-                    y[i] = (y[0] * m[i][0]) + y[i];
-                    for(int z = 0; z < m.length; z++){
-                        tempM[i][z] = (tempM[0][z] * temp) + m[i][z];
-                    }
-                    j = m.length;
-                }
-            }
-        }
-        return tempM;
+        return valueX;
     }
 
 }
