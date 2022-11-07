@@ -54,7 +54,96 @@ public class IntMatrixMath {
 
         //Now that we have the x values we can multiply it by our c values and add them together, getting the final results
         System.out.println(x1*c[0] + x2*c[1] + x3*c[2]);
+
+
+
+
+
+
+
+
+
+
+        double[] tempy = {2.5, 3.4, 4.3};
+        int[][] values = new int[(int)Math.pow(2, tempy.length)][tempy.length];
+        double squareLength = Math.pow(2, tempy.length);
+        int vent = (int)squareLength/2;
+        int vent2 = 1;
+        for(int v = 0; v < tempy.length; v++){
+            int valueV = 0;
+            for(int tempY = 0; tempY < vent2; tempY++){
+                for(int x = 0; x < vent; x++){
+                    values[valueV + x][v] = (int)tempy[v];
+                }
+                valueV = getValueV((int) squareLength, vent2, v, valueV, tempY);
+            }
+
+            valueV = 0;
+            for(int tempY = 0; tempY < vent2; tempY++){
+                for(int x = 0; x < vent; x++){
+                    values[x + vent + valueV][v] = (int)tempy[v] + 1;
+                }
+                valueV = getValueV((int) squareLength, vent2, v, valueV, tempY);
+            }
+            vent2 = (int)squareLength/vent;
+            vent = vent/2;
+        }
+
+        double[][] C_holder =  new double[values.length][values[0].length];
+        for(int i = 0; i < values.length; i++){
+            for(int j = 0; j < c.length; j++){
+                C_holder[i][j] = (c[j] * values[i][j]);
+            }
+        }
+        double max = 0;
+        double min;
+        double center = 0;
+        double[] centerC = new double[c.length];
+        for(int i = 0; i < c.length; i++){
+            max = 0;
+            min = C_holder[0][i];
+            for(int j = 0; j < values.length; j++){
+                if(C_holder[j][i] > max){
+                    max = C_holder[j][i];
+                }
+                if (C_holder[j][i] < min){
+                    min = C_holder[j][i];
+                }
+            }
+            center = ((double) max + (double) min)/2;
+            centerC[i] = center;
+        }
+
+        for(int i = 0; i < centerC.length; i++){
+            System.out.print(centerC[i] + " ");
+        }
+        System.out.println();
+
+        System.out.println("Test");
+
+
+
+
     }
+
+    private static int getValueV(int squareLength, int vent2, int v, int valueV, int tempY) {
+        if(v > 0){
+            if(vent2 == 1){
+                valueV = (squareLength /2);
+            } else{
+                valueV = (squareLength /vent2);
+            }
+
+            if(tempY > 0){
+                valueV = valueV * (tempY + 1);
+            }
+        }
+        return valueV;
+    }
+
+
+
+
     // used to inject the column of data into our M matrix
     public static double[][] injectMatrixColumn(double[][] m, double[] n, int cNum){
         double[][] temp = Arrays.stream(m).map(double[]::clone).toArray(double[][]::new);
