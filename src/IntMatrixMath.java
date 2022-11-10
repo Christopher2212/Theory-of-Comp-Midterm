@@ -1,79 +1,63 @@
-import java.util.Arrays;
-
 public class IntMatrixMath {
     public static void main(String[] args) {
         // y = mx + b
         // Init the equation
-        double[] y = new double[]{5.0, 12.9, 2.0};
+        double[] y = new double[] {5.0, 12.9, 2.0};
+//        double[] y = new double[] {5.0, 12.9, 2.0,2.4};
 
-        /*for(int i = 0; i < 3; i++){
-            System.out.println(y[i]);
-        }*/
         //          0         1         2
-        // m = {{a1.b1,c1},{a2,b2,c2},{a3,b3,c3}}
-        double[][] m = {{3.2,8.7,5.9},{2.4,3.1,1.1},{9.7,6.1,0.3}};
+        // m = {{a1,b1,c1},{a2,b2,c2},{a3,b3,c3}}
+        double[][] m = {{3.2,8.7,5.9},
+                {2.4,3.1,1.1},
+                {9.7, 6.1, 0.3}};
+//        double[][] m = {{-1.0,2.0,-1.0},
+//                {3.0,-7.0,-2.0},
+//                {2.0,2.0,1.0}};
+//        double[][] m = {{3.2,8.7,5.9,2.2},
+//                {2.4,3.1,1.1,2.3},
+//                {2.4,3.1,1.1,4.4},
+//                {9.7,6.1,0.3,7.6}};
         double[] b = {3.7,3.8,1};
+//        double[] b = {3.7,3.8,1,2.7};
 
         // Init c
         double[] c = {8.2,9.7,1.1};
-
-        // Going to solve this via Cramer's Rule
+//        double[] c = {8.2,9.7,1.1,1.4};
 
         // First we need to change the equation from y = mx + b to y = mx
         // Subtract b from the equation
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < y.length; i++){
             y[i] -= b[i];
         }
-        /*for(int i = 0; i < 3; i++){
-            System.out.println(y[i]);
-        }*/
 
-        // x1 = Dx/D where D is our m matrix
-        // x2 = Dy/D
-        // x3 = Dz/D
-
-        // Solving Dx, Dy, Dz
-        // this
-
-        double[][] Dx = injectMatrixColumn(m,y,0);
-        System.out.println("Dx:");
-        printMatrix(Dx);
+        // Creates the temp Matrix
+        double[][] tempM = getTempMatrixA(m, y);
 
 
-        double[][] Dy = injectMatrixColumn(m,y,1);
-        System.out.println("Dy:");
-        printMatrix(Dy);
-
-        double[][] Dz = injectMatrixColumn(m,y,2);
-
-        double x1 = reduceMatrix(Dx) / reduceMatrix(m);
-        double x2 = reduceMatrix(Dy) / reduceMatrix(m);
-        double x3 = reduceMatrix(Dz) / reduceMatrix(m);
-
-        System.out.println(x1 + " " + x2 + " " + x3);
-
-        //Now that we have the x values we can multiply it by our c values and add them together, getting the final results
-        System.out.println(x1*c[0] + x2*c[1] + x3*c[2]);
+        // Goes through the sequence of the Matrix
+        seqMatix(tempM, y, m);
 
 
+        // Find value X in the matrix
+        double[] valueX = getValueX(tempM, y);
 
 
+        System.out.println();
+        System.out.println("X values:");
+        for (double value : valueX) {
+            System.out.println(value);
+        }
 
 
-
-
-
-
-        double[] tempy = {2.5, 3.4, 4.3};
-        int[][] values = new int[(int)Math.pow(2, tempy.length)][tempy.length];
-        double squareLength = Math.pow(2, tempy.length);
+        int[][] values = new int[(int)Math.pow(2, valueX.length)][valueX.length];
+        double squareLength = Math.pow(2, valueX.length);
         int vent = (int)squareLength/2;
         int vent2 = 1;
-        for(int v = 0; v < tempy.length; v++){
+        for(int v = 0; v < valueX.length; v++){
             int valueV = 0;
             for(int tempY = 0; tempY < vent2; tempY++){
                 for(int x = 0; x < vent; x++){
-                    values[valueV + x][v] = (int)tempy[v];
+                    values[valueV + x][v] = (int) valueX[v];
                 }
                 valueV = getValueV((int) squareLength, vent2, v, valueV, tempY);
             }
@@ -81,7 +65,11 @@ public class IntMatrixMath {
             valueV = 0;
             for(int tempY = 0; tempY < vent2; tempY++){
                 for(int x = 0; x < vent; x++){
-                    values[x + vent + valueV][v] = (int)tempy[v] + 1;
+                    if(valueX[v] < 0){
+                        values[x + vent + valueV][v] = (int) valueX[v] - 1;
+                    } else {
+                        values[x + vent + valueV][v] = (int) valueX[v] + 1;
+                    }
                 }
                 valueV = getValueV((int) squareLength, vent2, v, valueV, tempY);
             }
@@ -89,39 +77,35 @@ public class IntMatrixMath {
             vent = vent/2;
         }
 
+
         double[][] C_holder =  new double[values.length][values[0].length];
         for(int i = 0; i < values.length; i++){
             for(int j = 0; j < c.length; j++){
                 C_holder[i][j] = (c[j] * values[i][j]);
             }
         }
-        double max = 0;
-        double min;
-        double center = 0;
-        double[] centerC = new double[c.length];
-        for(int i = 0; i < c.length; i++){
-            max = 0;
-            min = C_holder[0][i];
-            for(int j = 0; j < values.length; j++){
-                if(C_holder[j][i] > max){
-                    max = C_holder[j][i];
+
+        double[] maxArray = C_holder[0];
+        double[] minArray = C_holder[0];
+        for (double[] doubles : C_holder) {
+            for (int j = 0; j < C_holder[0].length; j++) {
+                if (doubles[j] > maxArray[j]) {
+                    maxArray = doubles;
                 }
-                if (C_holder[j][i] < min){
-                    min = C_holder[j][i];
+                if (doubles[j] < minArray[j]) {
+                    minArray = doubles;
                 }
             }
-            center = ((double) max + (double) min)/2;
-            centerC[i] = center;
+
         }
 
-        for(int i = 0; i < centerC.length; i++){
-            System.out.print(centerC[i] + " ");
-        }
         System.out.println();
 
-        System.out.println("Test");
-
-
+        System.out.println();
+        System.out.println("cTx values of maximize:");
+        for(int i = 0; i < minArray.length; i++){
+            System.out.println(maxArray[i]);
+        }
 
 
     }
@@ -140,48 +124,148 @@ public class IntMatrixMath {
         }
         return valueV;
     }
+//
+//
+//
+//
+//    // used to inject the column of data into our M matrix
+//    public static double[][] injectMatrixColumn(double[][] m, double[] n, int cNum){
+//        double[][] temp = Arrays.stream(m).map(double[]::clone).toArray(double[][]::new);
+//        for(int i = 0; i < 3; i++){
+//            temp[i][cNum] = n[i];
+//        }
+//        return temp;
+//    }
+//
+//    // Reduces a 3x3 matrix into a single digit
+//    public static double reduceMatrix(double[][] m){
+//        double a1 = m[0][0];
+//        double b1 = m[0][1];
+//        double c1 = m[0][2];
+//        // Set the 2x2 matrices
+//        double[][] m1 = {{m[1][1],m[1][2]},{m[2][1],m[2][2]}};
+//        double[][] m2 ={{m[1][0],m[1][2]},{m[2][0],m[2][2]}};
+//        double[][] m3 = {{m[1][0],m[1][1]},{m[2][0],m[2][1]}};
+//
+//        // D = (a1 * m1) - (b1 * m2) + (c1 * m3)
+//
+//        return calcChunk(m1, a1) - calcChunk(m2, b1) + calcChunk(m3, c1);
+//    }
+//
+//
+//    // Takes in a 2x2 matrix and a multiplier and calculates the chunk
+//    public static double calcChunk(double[][] sm, double n){
+//        return n * ((sm[0][0] * sm[1][1])-(sm[0][1] * sm[1][0]));
+//    }
+//
+//    // A helper method so that we can see what is in our matrices
+//    public static void printMatrix(double[][] m){
+//        for(int i=0; i<m.length; i++) {
+//            // inner loop for column
+//            for(int j=0; j<m[0].length; j++) {
+//                System.out.print(m[i][j] + " ");
+//            }
+//            System.out.println(); // new line
+//        }
+//    }
 
 
 
 
-    // used to inject the column of data into our M matrix
-    public static double[][] injectMatrixColumn(double[][] m, double[] n, int cNum){
-        double[][] temp = Arrays.stream(m).map(double[]::clone).toArray(double[][]::new);
-        for(int i = 0; i < 3; i++){
-            temp[i][cNum] = n[i];
-        }
-        return temp;
-    }
-
-    // Reduces a 3x3 matrix into a single digit
-    public static double reduceMatrix(double[][] m){
-        double a1 = m[0][0];
-        double b1 = m[0][1];
-        double c1 = m[0][2];
-        // Set the 2x2 matrices
-        double[][] m1 = {{m[1][1],m[1][2]},{m[2][1],m[2][2]}};
-        double[][] m2 ={{m[1][0],m[1][2]},{m[2][0],m[2][2]}};
-        double[][] m3 = {{m[1][0],m[1][1]},{m[2][0],m[2][1]}};
-
-        // D = (a1 * m1) - (b1 * m2) + (c1 * m3)
-
-        return calcChunk(m1, a1) - calcChunk(m2, b1) + calcChunk(m3, c1);
-    }
 
 
-    // Takes in a 2x2 matrix and a multiplier and calculates the chunk
-    public static double calcChunk(double[][] sm, double n){
-        return n * ((sm[0][0] * sm[1][1])-(sm[0][1] * sm[1][0]));
-    }
+    public static double[][] getTempMatrixA(double[][] m, double[] y){
+        double[][] tempM = new double[m[0].length][m.length];
+        for(int i = 0; i < m.length; i++){
 
-    // A helper method so that we can see what is in our matrices
-    public static void printMatrix(double[][] m){
-        for(int i=0; i<m.length; i++) {
-            // inner loop for column
-            for(int j=0; j<m[0].length; j++) {
-                System.out.print(m[i][j] + " ");
+            for(int j = 0; j < m.length; j++){
+                if(i == 0){
+                    tempM[i][j] = m[i][j];
+                } else{
+                    tempM[i][j] = m[i][j];
+                    double temp = m[i][0];
+                    y[i] = (y[0] * m[i][0]) + y[i];
+                    for(int z = 0; z < m.length; z++){
+                        tempM[i][z] = (tempM[0][z] * temp) + m[i][z];
+                    }
+                    j = m.length;
+                }
             }
-            System.out.println(); // new line
         }
+        return tempM;
+    }
+
+    private static void seqMatix(double[][] tempM, double[] y, double[][] m){
+        for(int i = 0; i < m.length; i++){
+            double downZ;
+            double upZ;
+            for(int j = m.length - 1; j >= i; j--){
+                while(tempM[j][i] == 0){
+                    j--;
+                }
+                if(j > i) {
+                    downZ = tempM[j - 1][i];
+                    upZ = tempM[j][i];
+                    double[] upMatrix = new double[m.length + 1];
+                    double[] downMatrix = new double[m.length + 1];
+
+                    if(tempM[j - 1][i] == 0.0){
+                        double temp;
+                        for(int z = 0; z < m.length; z++) {
+                            temp = tempM[j][z];
+                            tempM[j][z] = tempM[j - 1][z];
+                            tempM[j - 1][z] = temp;
+                        }
+                        temp = y[j - 1];
+                        y[j - 1] = y[j];
+                        y[j] = temp;
+
+                    }
+                    else {
+                        for (int z = 0; z < m.length; z++) {
+                            double temp1 = upZ * tempM[j - 1][z];
+                            double temp2 = downZ * tempM[j][z];
+                            upMatrix[z] = temp1;
+                            downMatrix[z] = temp2;
+                        }
+                        upMatrix[m.length] = upZ * y[j - 1];
+                        downMatrix[m.length] = downZ * y[j];
+
+                        if (downMatrix[i] > 0 || upMatrix[i] == downMatrix[i]) {
+                            for (int z = 0; z < m.length + 1; z++) {
+                                downMatrix[z] = downMatrix[z] * -1;
+                            }
+                        }
+
+                        for (int z = 0; z < m.length; z++) {
+                            tempM[j][z] = upMatrix[z] + downMatrix[z];
+                        }
+                        y[j] = upMatrix[m.length] + downMatrix[m.length];
+                    }
+
+                }
+            }
+        }
+    }
+
+    public static double[] getValueX(double[][] tempM, double[] y){
+        double[] valueX = new double[tempM.length];
+        for(int i = tempM.length - 1; i >= 0; i--){
+            double[] equa = new double[tempM.length + 1];
+            // Copies the array from the tempM
+            System.arraycopy(tempM[i], 0, equa, 0, tempM.length);
+            equa[tempM.length] = y[i];
+            double total = 0;
+            for(int j = i + 1; j < tempM.length; j++){
+                if(valueX[j] != 0.0) {
+                    equa[j] = equa[j] * valueX[j];
+                }
+                total = total + equa[j];
+            }
+            equa[tempM.length] = (equa[tempM.length] - total)/equa[i];
+
+            valueX[i] = equa[tempM.length];
+        }
+        return valueX;
     }
 }
