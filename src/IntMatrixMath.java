@@ -41,72 +41,23 @@ public class IntMatrixMath {
         // Find value X in the matrix
         double[] valueX = getValueX(tempM, y);
 
-
-        System.out.println();
         System.out.println("X values:");
         for (double value : valueX) {
             System.out.println(value);
         }
 
+        // Create x values in a X matrix
+        int[][] values = valueXmatrix(valueX);
 
-        int[][] values = new int[(int)Math.pow(2, valueX.length)][valueX.length];
-        double squareLength = Math.pow(2, valueX.length);
-        int vent = (int)squareLength/2;
-        int vent2 = 1;
-        for(int v = 0; v < valueX.length; v++){
-            int valueV = 0;
-            for(int tempY = 0; tempY < vent2; tempY++){
-                for(int x = 0; x < vent; x++){
-                    values[valueV + x][v] = (int) valueX[v];
-                }
-                valueV = getValueV((int) squareLength, vent2, v, valueV, tempY);
-            }
-
-            valueV = 0;
-            for(int tempY = 0; tempY < vent2; tempY++){
-                for(int x = 0; x < vent; x++){
-                    if(valueX[v] < 0){
-                        values[x + vent + valueV][v] = (int) valueX[v] - 1;
-                    } else {
-                        values[x + vent + valueV][v] = (int) valueX[v] + 1;
-                    }
-                }
-                valueV = getValueV((int) squareLength, vent2, v, valueV, tempY);
-            }
-            vent2 = (int)squareLength/vent;
-            vent = vent/2;
-        }
-
-
-        double[][] C_holder =  new double[values.length][values[0].length];
-        for(int i = 0; i < values.length; i++){
-            for(int j = 0; j < c.length; j++){
-                C_holder[i][j] = (c[j] * values[i][j]);
-            }
-        }
-
-        double[] maxArray = C_holder[0];
-        double[] minArray = C_holder[0];
-        for (double[] doubles : C_holder) {
-            for (int j = 0; j < C_holder[0].length; j++) {
-                if (doubles[j] > maxArray[j]) {
-                    maxArray = doubles;
-                }
-                if (doubles[j] < minArray[j]) {
-                    minArray = doubles;
-                }
-            }
-
-        }
-
+        // Find maximum c values in the X matrix
+        double[] valuesC = max_Cvalues(values, c);
         System.out.println();
 
         System.out.println();
         System.out.println("cTx values of maximize:");
-        for(int i = 0; i < minArray.length; i++){
-            System.out.println(maxArray[i]);
+        for(int i = 0; i < valuesC.length; i++){
+            System.out.println(valuesC[i]);
         }
-
 
     }
 
@@ -124,55 +75,6 @@ public class IntMatrixMath {
         }
         return valueV;
     }
-//
-//
-//
-//
-//    // used to inject the column of data into our M matrix
-//    public static double[][] injectMatrixColumn(double[][] m, double[] n, int cNum){
-//        double[][] temp = Arrays.stream(m).map(double[]::clone).toArray(double[][]::new);
-//        for(int i = 0; i < 3; i++){
-//            temp[i][cNum] = n[i];
-//        }
-//        return temp;
-//    }
-//
-//    // Reduces a 3x3 matrix into a single digit
-//    public static double reduceMatrix(double[][] m){
-//        double a1 = m[0][0];
-//        double b1 = m[0][1];
-//        double c1 = m[0][2];
-//        // Set the 2x2 matrices
-//        double[][] m1 = {{m[1][1],m[1][2]},{m[2][1],m[2][2]}};
-//        double[][] m2 ={{m[1][0],m[1][2]},{m[2][0],m[2][2]}};
-//        double[][] m3 = {{m[1][0],m[1][1]},{m[2][0],m[2][1]}};
-//
-//        // D = (a1 * m1) - (b1 * m2) + (c1 * m3)
-//
-//        return calcChunk(m1, a1) - calcChunk(m2, b1) + calcChunk(m3, c1);
-//    }
-//
-//
-//    // Takes in a 2x2 matrix and a multiplier and calculates the chunk
-//    public static double calcChunk(double[][] sm, double n){
-//        return n * ((sm[0][0] * sm[1][1])-(sm[0][1] * sm[1][0]));
-//    }
-//
-//    // A helper method so that we can see what is in our matrices
-//    public static void printMatrix(double[][] m){
-//        for(int i=0; i<m.length; i++) {
-//            // inner loop for column
-//            for(int j=0; j<m[0].length; j++) {
-//                System.out.print(m[i][j] + " ");
-//            }
-//            System.out.println(); // new line
-//        }
-//    }
-
-
-
-
-
 
     public static double[][] getTempMatrixA(double[][] m, double[] y){
         double[][] tempM = new double[m[0].length][m.length];
@@ -267,5 +169,60 @@ public class IntMatrixMath {
             valueX[i] = equa[tempM.length];
         }
         return valueX;
+    }
+
+    public static int[][] valueXmatrix(double[] valueX){
+        int[][] values = new int[(int)Math.pow(2, valueX.length)][valueX.length];
+        double squareLength = Math.pow(2, valueX.length);
+        int vent = (int)squareLength/2;
+        int vent2 = 1;
+        for(int v = 0; v < valueX.length; v++){
+            int valueV = 0;
+            for(int tempY = 0; tempY < vent2; tempY++){
+                for(int x = 0; x < vent; x++){
+                    values[valueV + x][v] = (int) valueX[v];
+                }
+                valueV = getValueV((int) squareLength, vent2, v, valueV, tempY);
+            }
+
+            valueV = 0;
+            for(int tempY = 0; tempY < vent2; tempY++){
+                for(int x = 0; x < vent; x++){
+                    if(valueX[v] < 0){
+                        values[x + vent + valueV][v] = (int) valueX[v] - 1;
+                    } else {
+                        values[x + vent + valueV][v] = (int) valueX[v] + 1;
+                    }
+                }
+                valueV = getValueV((int) squareLength, vent2, v, valueV, tempY);
+            }
+            vent2 = (int)squareLength/vent;
+            vent = vent/2;
+        }
+        return values;
+    }
+
+    public static double[] max_Cvalues(int[][] values, double[] c){
+        double[][] C_holder =  new double[values.length][values[0].length];
+        for(int i = 0; i < values.length; i++){
+            for(int j = 0; j < c.length; j++){
+                C_holder[i][j] = (c[j] * values[i][j]);
+            }
+        }
+
+        double[] maxArray = C_holder[0];
+        double[] minArray = C_holder[0];
+        for (double[] doubles : C_holder) {
+            for (int j = 0; j < C_holder[0].length; j++) {
+                if (doubles[j] > maxArray[j]) {
+                    maxArray = doubles;
+                }
+                if (doubles[j] < minArray[j]) {
+                    minArray = doubles;
+                }
+            }
+
+        }
+        return maxArray;
     }
 }
